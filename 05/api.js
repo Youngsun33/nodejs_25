@@ -2,6 +2,7 @@ const express = require("express"); //익스프레스 모듈 임포트
 const moment = require("moment"); //날짜모듈 임포트
 const Database = require("better-sqlite3"); // sqlite 임포트
 const path = require("path"); //경로 모듈 임포트
+const { off } = require("process");
 
 //DB setting
 const db_name = path.join(__dirname, "post.db"); //sqlite용 데이터 베이스 파일 (소용량)
@@ -21,6 +22,7 @@ CREATE TABLE IF NOT EXISTS posts (
     author VARCHAR(100),
     createdAt DATETIME ,
     count INTEGER DEFAULT 0
+
 );
 `;
 
@@ -46,11 +48,15 @@ app.post("/posts", (req, res) => {
 
 //게시글 목록 가져오기
 app.get("/posts", (req, res) => {
-  let sql = `select id, title, content, author, createdAt
-    from posts order by createdAt desc`;
+  //한 페이지에 5개
+  const page = req.query.page ? parseInt(req.query.page) : 1;
+  const limit = 10;
+  const offset = (page - 1) * limit;
+  let sql = `select id, title, content, author, createdAt, count
+    from posts order by createdAt desc limit ? offset ?; `;
 
   const stmt = db.prepare(sql);
-  const rows = stmt.all();
+  const rows = stmt.all(limit, offset);
   console.log(rows);
   res.status(200).json({ data: rows });
 });
@@ -60,6 +66,10 @@ app.get("/posts/:id", (req, res) => {
   const id = req.params.id;
   let sql = `select id, title, content, author, createdAt, count
       from posts where id = ?`;
+
+  //조회수
+  let ac_sql = `update posts set count = count + 1 where id =? ;`;
+  db.prepare(ac_sql).run(id);
 
   const stmt = db.prepare(sql);
   const post = stmt.get(id); //{}로 반환

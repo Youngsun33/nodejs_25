@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import axios from 'axios';
+import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import axios from "axios";
 
 function PostList() {
   const [posts, setPosts] = useState([]);
@@ -21,11 +21,13 @@ function PostList() {
       setCurrentPage(page);
       // api2.js는 totalPages를 제공하지 않으므로 임의로 설정
       // 실제로는 총 게시글 수를 알아야 정확한 페이지 수 계산 가능
-      setTotalPages(response.data.data && response.data.data.length > 0 ? 10 : 1);
+      setTotalPages(
+        response.data.data && response.data.data.length > 0 ? 10 : 1
+      );
       setError(null);
     } catch (err) {
-      console.error('게시글을 불러오는 중 오류가 발생했습니다:', err);
-      setError('게시글을 불러오는 중 오류가 발생했습니다.');
+      console.error("게시글을 불러오는 중 오류가 발생했습니다:", err);
+      setError("게시글을 불러오는 중 오류가 발생했습니다.");
     } finally {
       setLoading(false);
     }
@@ -43,7 +45,7 @@ function PostList() {
   return (
     <div className="post-list">
       <h2 className="mb-4">게시글 목록</h2>
-      
+
       {posts.length === 0 ? (
         <div className="alert alert-info">게시글이 없습니다.</div>
       ) : (
@@ -55,25 +57,27 @@ function PostList() {
                 <th>제목</th>
                 <th>작성자</th>
                 <th>작성일</th>
+                <th>조회수</th>
               </tr>
             </thead>
             <tbody>
-              {posts.map(post => (
+              {posts.map((post) => (
                 <tr key={post.id}>
                   <td>{post.id}</td>
                   <td>
                     <Link to={`/posts/${post.id}`}>{post.title}</Link>
                   </td>
                   <td>{post.author}</td>
-                  <td>{post.createAt && post.createAt.substring(0, 10)}</td>
+                  <td>{post.createdAt && post.createdAt.substring(0, 10)}</td>
+                  <td>{post.count}</td>
                 </tr>
               ))}
             </tbody>
           </table>
 
           <div className="pagination">
-            <button 
-              className="btn btn-sm btn-outline-primary" 
+            <button
+              className="btn btn-sm btn-outline-primary"
               onClick={() => handlePageChange(currentPage - 1)}
               disabled={currentPage === 1}
             >
@@ -82,8 +86,8 @@ function PostList() {
             <span className="mx-2">
               {currentPage} / {totalPages}
             </span>
-            <button 
-              className="btn btn-sm btn-outline-primary" 
+            <button
+              className="btn btn-sm btn-outline-primary"
               onClick={() => handlePageChange(currentPage + 1)}
               disabled={currentPage === totalPages}
             >
@@ -92,7 +96,7 @@ function PostList() {
           </div>
         </div>
       )}
-      
+
       <div className="mt-3">
         <Link to="/create" className="btn btn-primary">
           새 게시글 작성

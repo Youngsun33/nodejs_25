@@ -3,7 +3,6 @@ const express = require("express");
 const path = require("path");
 const moment = require("moment");
 const Database = require("better-sqlite3");
-const { deserialize } = require("v8");
 
 //데베
 const db_name = path.join(__dirname, "todo.db");
