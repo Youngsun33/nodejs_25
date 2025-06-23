@@ -143,13 +143,17 @@ app.post("/posts/:id/comments", (req, res) => {
   const { content, author } = req.body;
   const createdAt = moment().format("YYYY-MM-DD HH:mm:ss");
 
+  //해당 게시글이 존재하는지 확인
   const post = db.prepare(`select id from posts where id =?`).get(postId);
   if (!post) {
     return res.status(404).json({ message: "게시물을 찾을 수 없습니다." });
   }
+
+  //댓글 삽입 쿼리
   const sql = ` insert into comments(postId, author, content, createdAt) values (?,?,? ,?)`;
   const result = db.prepare(sql).run(postId, author, content, createdAt);
 
+  //추가한 댓글 정보 조회
   const newComment = db
     .prepare(`select * from comments where id =?`)
     .get(result.lastInsertRowid);
@@ -161,11 +165,13 @@ app.post("/posts/:id/comments", (req, res) => {
 app.get("/posts/:id/comments", (req, res) => {
   const postId = req.params.id;
 
+  //해당 게시글이 존재하는지 확인
   const post = db.prepare(`select * from posts where id = ?`).get(postId);
   if (!post) {
     return res.status(404).json({ message: "게시물을 찾을 수 없습니다." });
   }
 
+  // 해당 게시글의 댓글 목록 조회 (최신순)
   const sql = `select id, author, content, createdAt from comments where postId = ? order by id desc`;
   const comments = db.prepare(sql).all(postId);
   res.status(200).json({ message: "ok", data: comments });
@@ -198,6 +204,7 @@ app.put("/posts/:postId/comments/:commentId", (req, res) => {
     return res.status(404).json({ message: "게시물을 찾을 수 없습니다." });
   }
 
+  // 값이 전달되지 않으면 기존 값 유지
   const newAuthor = author !== undefined ? author : comment.author;
   const newContent = content !== undefined ? content : comment.content;
 
