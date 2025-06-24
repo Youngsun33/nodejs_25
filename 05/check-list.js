@@ -18,6 +18,7 @@ const app = express();
 const PORT = 3000;
 app.use(express.json());
 
+//c퀄라이저는 sql문을 자바문법으로 쓰는거임.
 const create_sql = `
     create table if not exists checkLists (
     id integer primary key autoincrement,
@@ -35,38 +36,39 @@ db.exec(create_sql);
 // Get /checklist?category=여름
 // Put /checklist/:id -> 체크여부를 toggle 0->1
 // Delete checklist/:id
-
-app.post("/checklists", (req, res) => {
+app.post("/checklist", (req, res) => {
   const { category, item, amount } = req.body;
-  let sql = `insert into checkLists(category , item, amount) values(?,?,?)`;
+  const result = db
+    .prepare(`insert into checklist(category, item, amount) values(?, ?, ?)`)
+    .run(category, item, amount);
 
-  db.prepare(sql).run(category, item, amount);
-  res.status(200).json({ message: "ok" });
+  const newCheckList = db
+    .prepare(`select * from checklist where id = ?`)
+    .get(result.lastInsertRowid);
+  res.status(201).json({ message: "ok", data: newCheckList });
 });
-
-app.get("/checklists/:category", (req, res) => {
-  const category = req.params.category;
-  let sql = `select * from checkLists where category = ?`;
-
-  const list = db.prepare(sql).all(category);
-  res.status(200).json({ message: "ok", data: list });
+app.get("/checklist", (req, res) => {
+  const q = req.query.q;
+  const rows = db.prepare(`select * from checklist where category = ?`).all(q);
+  res.status(200).json({ message: "ok", data: rows });
 });
-
-app.put("/checkLists/:id", (req, res) => {
+// check update
+app.put("/checklist/:id", (req, res) => {
   const id = req.params.id;
-  const toggle = req.params.checkyn;
-  let sql = `update checkLists set checkyn = not checkyn where id = ?`;
-
-  db.prepare(sql).run(id);
-  res.status(200).json({ message: "ok" });
+  db.prepare(
+    `UPDATE checklist SET checkyn = CASE checkyn WHEN 1 THEN 0 ELSE 1 END WHERE id = ? `
+  ).run(id);
+  const item = db.prepare(`select * from checklist where id = ? `).get(id);
+  res.status(200).json({ message: "ok", data: item });
 });
 
-app.delete("/checkLists/:id", (req, res) => {
+app.delete("/checklist/:id", (req, res) => {
   const id = req.params.id;
-  let sql = `delete from checkLists where id = ?`;
-
-  db.prepare(sql).run(id);
-  res.status(200).json({ message: "ok" });
+  const result = db.prepare(`delete from checklist where id = ?`).run(id);
+  if (result.changes == 0) {
+    res.status(404).json({ message: "항목을 찾을 수 없어용 " });
+  }
+  res.status(204).send();
 });
 
 app.listen(PORT, () => {});
