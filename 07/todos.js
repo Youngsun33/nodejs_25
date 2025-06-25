@@ -52,6 +52,7 @@ app.delete("/todos/:id", async (req, res) => {
   const id = req.params.id;
   const result = await models.Todo.destroy({ where: { id: id } });
   if (result > 0) {
+    //지운 행이 0개 이상이면, 즉 삭제를 하나라도 했으면
     res.status(200).json({ massege: "삭제 성공!!" });
   } else {
     res.status(404).json({ massege: "ERROR" });
