@@ -127,15 +127,43 @@ app.get("/posts/:postId/comments/:id", async (req, res) => {
   res.status(200).json({ message: "ok", data: comment });
 });
 
+//댓글수정
+app.put("/posts/:postId/comments/:id", async (req, res) => {
+  const postId = req.params.postId;
+  const commentId = req.params.id;
+  const { content } = req.body;
+
+  const post = await models.Post.findByPk(postId);
+  if (!post) {
+    return res.status(404).json({ message: "not find posts" });
+  }
+
+  const comment = await models.Comment.findOne({
+    where: {
+      id: commentId,
+      postId: postId,
+    },
+  });
+  if (!comment) {
+    return res.status(404).json({ message: "comment not find" });
+  }
+  if (comment) comment.content = content;
+  await comment.save();
+  res.status(200).json({ message: "ok", data: comment });
+});
+
 //삭제
 app.delete("/posts/:postId/comments/:id", async (req, res) => {
   const postId = req.params.postId;
+  const commentId = req.params.id;
   const post = await models.Post.findByPk(postId);
   if (!post) {
-    res.status(404).json({ message: "not find posts" });
+    res.status(404).json({ message: "post not find" });
   }
 
-  const result = await models.Comment.destroy({ where: { postId: postId } });
+  const result = await models.Comment.destroy({
+    where: { postId: postId, id: commentId },
+  });
   if (result > 0) {
     res.status(204).send();
   } else {
