@@ -1,6 +1,8 @@
 const express = require("express");
 const path = require("path");
 const noteRouter = require("./routes/notes");
+const todoRouter = require("./routes/todos");
+const postRouter = require("./routes/posts");
 const models = require("./models");
 const app = express();
 
@@ -10,6 +12,23 @@ const uploadDir = `public/uploads`;
 app.use("/downloads", express.static(path.join(__dirname, uploadDir))); //http://localhost:3000/downloads/aa.png
 
 app.use("/notes", noteRouter);
+app.use("/todos", todoRouter);
+app.use("/posts", postRouter);
+
+app.use((req, res) => {
+  res.status(404).json({
+    status: "fail",
+    message: "요청한 리소스는 찾을 수 없음.",
+  });
+});
+
+app.use((err, req, res, next) => {
+  console.log(err.status);
+  res.status(500).json({
+    status: "ERROR",
+    message: `server error : ${err.status}`,
+  });
+});
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

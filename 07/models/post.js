@@ -8,6 +8,12 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: true,
       },
+      attachments: {
+        // 여러개 포스트 가능하게.
+        type: DataTypes.JSON,
+        allowNull: true,
+        defaultValue: [],
+      },
     },
     { tableName: "posts" }
   );
