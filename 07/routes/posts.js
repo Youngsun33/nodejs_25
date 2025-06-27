@@ -2,8 +2,9 @@ const express = require("express");
 const router = express.Router();
 const postControllter = require("../controllers/posts");
 const { uploadSingle, uploadMultiple } = require("../middlewares/upload");
+const { authenticate } = require("../middlewares/auth");
 
-router.post("/", uploadMultiple, postControllter.createPosts);
+router.post("/", authenticate, uploadMultiple, postControllter.createPosts);
 router.get("/", postControllter.getAllPost);
 router.get("/:id", postControllter.getPostById);
 router.put("/:id", postControllter.updatePost);

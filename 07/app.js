@@ -3,6 +3,8 @@ const path = require("path");
 const noteRouter = require("./routes/notes");
 const todoRouter = require("./routes/todos");
 const postRouter = require("./routes/posts");
+const userRouter = require("./routes/users");
+const authRouter = require("./routes/auth");
 const models = require("./models");
 const app = express();
 
@@ -14,6 +16,8 @@ app.use("/downloads", express.static(path.join(__dirname, uploadDir))); //http:/
 app.use("/notes", noteRouter);
 app.use("/todos", todoRouter);
 app.use("/posts", postRouter);
+app.use("/users", userRouter);
+app.use("/auth", authRouter);
 
 app.use((req, res) => {
   res.status(404).json({
@@ -22,13 +26,13 @@ app.use((req, res) => {
   });
 });
 
-app.use((err, req, res, next) => {
-  console.log(err.status);
-  res.status(500).json({
-    status: "ERROR",
-    message: `server error : ${err.status}`,
-  });
-});
+// app.use((err, req, res, next) => {
+//   console.log(err.status);
+//   res.status(500).json({
+//     status: "ERROR",
+//     message: `server error : ${err.status}`,
+//   });
+// });
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

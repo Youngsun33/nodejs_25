@@ -6,16 +6,16 @@ const createPosts = async (req, res) => {
   let filename = req.file ? req.file.filename : null;
   filename = `/downloads/${filename}`;
 
-  let user = await models.User.findOne({
-    where: { email: "sun@email.com" },
-  });
-  if (!user) {
-    user = await models.User.create({
-      name: "sun",
-      email: "sun@email.com",
-      password: "dads",
-    });
-  }
+  // let user = await models.User.findOne({
+  //   where: { email: "sun@email.com" },
+  // });
+  // if (!user) {
+  //   user = await models.User.create({
+  //     name: "sun",
+  //     email: "sun@email.com",
+  //     password: "dads",
+  //   });
+  // }
 
   let attachments = [];
   if (req.file) {
@@ -40,6 +40,7 @@ const createPosts = async (req, res) => {
   const post = await models.Post.create({
     title: title,
     content: content,
+    authorId: req.user.id,
     //fileName: filename,
     attachments: attachments,
   });
