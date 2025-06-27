@@ -1,0 +1,141 @@
+openapi: 3.0.0
+info:
+  title: Notes API
+  version: 1.0.0
+  description: 노트 관리 API
+
+paths:
+  /notes:
+    post:
+      summary: 노트 생성
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                content:
+                  type: string
+                tag:
+                  type: string
+      responses:
+        "200":
+          description: 생성된 노트 반환
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  massege:
+                    type: string
+                  data:
+                    $ref: "#/components/schemas/Note"
+    get:
+      summary: 모든 노트 조회
+      responses:
+        "200":
+          description: 노트 목록 반환
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  massege:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Note"
+
+  /notes/{tag}:
+    get:
+      summary: 태그로 노트 목록 조회
+      parameters:
+        - name: tag
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: 태그에 해당하는 노트 목록 반환
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  massege:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Note"
+        "404":
+          description: 노트 없음
+
+  /notes/{id}:
+    put:
+      summary: 노트 수정
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                content:
+                  type: string
+                tag:
+                  type: string
+      responses:
+        "200":
+          description: 수정된 노트 반환
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  massege:
+                    type: string
+                  data:
+                    $ref: "#/components/schemas/Note"
+        "404":
+          description: 노트 없음
+    delete:
+      summary: 노트 삭제
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: 삭제 성공
+        "404":
+          description: 노트 없음
+
+components:
+  schemas:
+    Note:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        content:
+          type: string
+        tag:
+          type: string

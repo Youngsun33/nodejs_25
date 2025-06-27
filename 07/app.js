@@ -1,5 +1,8 @@
 const express = require("express");
 const path = require("path");
+const sawggerUi = require("swagger-ui-express");
+const YAML = require("yamljs");
+
 const noteRouter = require("./routes/notes");
 const todoRouter = require("./routes/todos");
 const postRouter = require("./routes/posts");
@@ -8,10 +11,17 @@ const authRouter = require("./routes/auth");
 const models = require("./models");
 const app = express();
 
+const { logger, logging } = require("./middlewares/logger");
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 const uploadDir = `public/uploads`;
 app.use("/downloads", express.static(path.join(__dirname, uploadDir))); //http://localhost:3000/downloads/aa.png
+app.use(logging);
+
+//스웨거 설정
+const swaggerDocument = YAML.load(path.join(__dirname, "swagger.yaml"));
+app.use("/api-docs", sawggerUi.serve, sawggerUi.setup(swaggerDocument));
 
 app.use("/notes", noteRouter);
 app.use("/todos", todoRouter);
