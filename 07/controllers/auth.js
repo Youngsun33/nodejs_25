@@ -33,7 +33,7 @@ const login = async (req, res) => {
   }
   //정당한ㄴ 사용자 임시허가증 발급
   const accessToken = generateAccessToken(user);
-  res.status(200).json({ message: "ok", data: accessToken });
+  res.status(200).json({ message: "ok", data: accessToken, user });
 };
 
 module.exports = {
